@@ -1,0 +1,58 @@
+<meta charset=utf-8" />
+<?php 
+session_start();
+require ('connection.php');
+	//$MEMBERNO = $_REQUEST["MEMBERNO"];
+$count = "0";
+$price = "0";
+$Rooms = $_POST['Rooms']; //เก็บค่าประเภทของสินค้า
+$Usercount = $_POST['Usercount']; //เก็บค่าขนาดของสินค้า
+$Start_time = $_POST['Start_time']; //เก็บค่าจำนวนของสินค้า
+$End_time =$_POST['End_time'];//เก็บค่าวันที่ที่ลูกค้านัดรับสินค้า
+$date = date("d-m-Y"); //กำหนดวันที่และเวลา
+$DateReceip =$_POST['DateReceip'];
+$UserID = $_SESSION["UserID"];
+$Name = $_SESSION['Name'];
+$count = $End_time - $Start_time;
+
+$rsql = "SELECT * FROM room WHERE Roomname = '".$Rooms."'";
+$rresult = mysqli_query($mysqli,$rsql);
+$room = mysqli_fetch_array($rresult);
+$price = $count * $room['Price'];
+	//ตรวจสอบเวลาซ้ำ		
+	$check = "SELECT * FROM booksa  WHERE DateReceip = '$DateReceip' AND Rooms = '$Rooms' ";
+	$result = mysqli_query($mysqli,$check) or die(mysqli_error());
+	$num=mysqli_num_rows($result); 
+        if($num > 0)   		
+        {
+             echo "<script>";
+			 echo "alert('ขออภัย เวลานี้มีคนจองเเล้ว !!!');";
+			 echo "window.location='จอง2.php';";
+          	 echo "</script>";
+
+		}else{
+			
+	//Insert to db	
+		$sql = "INSERT INTO booksa (Rooms, Usercount, Start_time, End_time, DateReceip,Member_ID, Name,total )"
+			. "VALUES('$Rooms', '$Usercount', '$Start_time', '$End_time', '$DateReceip','$UserID','$Name','$price' )"; 
+		
+			$result = $mysqli->query($sql);
+			}
+		 
+		
+	mysqli_close($mysqli);			
+		 
+	if($result){
+			echo "<script type='text/javascript'>";
+		  	echo "alert ('REGISTER SUCCESSFULLY');";
+			echo "window.location='สรุปผลการจอง.php';";
+			echo "</script>";
+	  }
+	  else{
+		    echo "<script type='text/javascript'>";
+			echo "alert ('Error!');";
+			echo "window.location='1.php';";
+		  echo "</script>";
+	  }		 
+  
+?>
